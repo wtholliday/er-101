@@ -112,14 +112,14 @@ typedef struct
 } snapshot_data_t;
 
 
-void seq_save_data(sequencer_data_t* data, write_func_t write_func) {
+void seq_save_data(sequencer_data_t* data, write_func_t write) {
   
   snapshot_data_t snap_data;
   snap_data.magic = data->magic;
   for(int i=0;i<NUM_TRACKS;++i) {
     snap_data.tracks[i] = data->tracks[i];
   }
-  write_func(sizeof(snapshot_data_t), &snap_data);
+  write(sizeof(snapshot_data_t), &snap_data);
 
   // Write out patterns.
   for(int i=0;i<NUM_TRACKS;++i) {
@@ -128,7 +128,7 @@ void seq_save_data(sequencer_data_t* data, write_func_t write_func) {
       snapshot_pattern_t snap_pat;
       snap_pat.ns = pat.ns;
       snap_pat.options = pat.options;
-      write_func(sizeof(snapshot_pattern_t), &snap_pat);
+      write(sizeof(snapshot_pattern_t), &snap_pat);
 
       // Write out steps.
       for(step_id_t step_id = pat.first; step_id != INVALID_STEP; step_id = data->steps.pool[step_id].next) {
@@ -138,14 +138,35 @@ void seq_save_data(sequencer_data_t* data, write_func_t write_func) {
         snap_step.cvB = step.cvB;
         snap_step.duration = step.duration;
         snap_step.gate = step.gate;
-        write_func(sizeof(snapshot_step_t), &snap_step);
+        write(sizeof(snapshot_step_t), &snap_step);
       }
     }
   }
 
   // Indicate that we're done writing so data is flushed.
-  write_func(0, NULL);
+  write(0, NULL);
 
+}
+
+void seq_load_data(sequencer_data_t* data, read_func_t read) {
+
+  snapshot_data_t snap_data;
+  read(sizeof(snapshot_data_t), &snap_data);
+
+  for(int i=0;i<NUM_TRACKS;++i) {
+    data->tracks[i] = snap_data.tracks[i];
+  }
+
+  for(int i=0;i<NUM_TRACKS;++i) {
+    for(uint8_t pat=0;pat<data->tracks[i].nm;++pat) {
+        snapshot_pattern_t snap_pat;
+        read(sizeof(snapshot_pattern_t), &snap_pat);
+        for(uint8_t step=0;step<snap_pat.ns;++step) {
+            snapshot_step_t snap_step;
+            read(sizeof(snapshot_step_t), &snap_step);
+        }
+    }
+  }
 }
 
 int main() {
