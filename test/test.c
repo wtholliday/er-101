@@ -76,6 +76,16 @@ typedef struct
   // uint8_t reserved;
 } pattern_pool_t;
 
+typedef struct
+{
+  uint32_t magic;
+  transform_t transform; // not used
+  track_t tracks[NUM_TRACKS];
+  pattern_pool_t patterns;
+  step_pool_t steps;
+  // uint16_t reserved;
+} sequencer_data_t;
+
 int main() {
     printf("running tests\n");
 }
