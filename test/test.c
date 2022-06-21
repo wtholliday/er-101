@@ -5,6 +5,8 @@
 #define MAX_STEPS 2000
 #define MAX_PATTERNS 400
 #define NUM_TRACKS 4
+#define INVALID_PATTERN 0xFFFF
+#define INVALID_STEP 0xFFFF
 
 typedef struct
 {
@@ -121,7 +123,7 @@ void seq_save_data(sequencer_data_t* data, write_func_t write_func) {
 
   // Write out patterns.
   for(int i=0;i<NUM_TRACKS;++i) {
-    for(pattern_id_t pat_id = data->tracks[i].first; pat_id; pat_id = data->patterns.pool[pat_id].next) {
+    for(pattern_id_t pat_id = data->tracks[i].first; pat_id != INVALID_PATTERN; pat_id = data->patterns.pool[pat_id].next) {
       pattern_t pat = data->patterns.pool[pat_id];
       snapshot_pattern_t snap_pat;
       snap_pat.ns = pat.ns;
@@ -129,7 +131,7 @@ void seq_save_data(sequencer_data_t* data, write_func_t write_func) {
       write_func(sizeof(snapshot_pattern_t), &snap_pat);
 
       // Write out steps.
-      for(step_id_t step_id = pat.first; step_id; step_id = data->steps.pool[step_id].next) {
+      for(step_id_t step_id = pat.first; step_id != INVALID_STEP; step_id = data->steps.pool[step_id].next) {
         step_t step = data->steps.pool[step_id];
         snapshot_step_t snap_step;
         snap_step.cvA = step.cvA;
