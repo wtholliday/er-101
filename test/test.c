@@ -7,6 +7,8 @@
 #define NUM_TRACKS 4
 #define INVALID_PATTERN 0xFFFF
 #define INVALID_STEP 0xFFFF
+#define STEP(data, id) (data->steps.pool[id])
+#define PATTERN(data, id) (data->patterns.pool[id])
 
 typedef struct
 {
@@ -123,7 +125,7 @@ void seq_save_data(sequencer_data_t* data, write_func_t write) {
 
   // Write out patterns.
   for(int i=0;i<NUM_TRACKS;++i) {
-    for(pattern_id_t pat_id = data->tracks[i].first; pat_id != INVALID_PATTERN; pat_id = data->patterns.pool[pat_id].next) {
+    for(pattern_id_t pat_id = data->tracks[i].first; pat_id != INVALID_PATTERN; pat_id = PATTERN(data, pat_id).next) {
       pattern_t pat = data->patterns.pool[pat_id];
       snapshot_pattern_t snap_pat;
       snap_pat.ns = pat.ns;
@@ -131,7 +133,7 @@ void seq_save_data(sequencer_data_t* data, write_func_t write) {
       write(sizeof(snapshot_pattern_t), &snap_pat);
 
       // Write out steps.
-      for(step_id_t step_id = pat.first; step_id != INVALID_STEP; step_id = data->steps.pool[step_id].next) {
+      for(step_id_t step_id = pat.first; step_id != INVALID_STEP; step_id = STEP(data, step_id).next) {
         step_t step = data->steps.pool[step_id];
         snapshot_step_t snap_step;
         snap_step.cvA = step.cvA;
@@ -148,6 +150,50 @@ void seq_save_data(sequencer_data_t* data, write_func_t write) {
 
 }
 
+void pattern_init(pattern_t *pattern)
+{
+  pattern->first = INVALID_STEP;
+  pattern->last = INVALID_STEP;
+  pattern->prev = INVALID_PATTERN;
+  pattern->next = INVALID_PATTERN;
+  pattern->ns = 0;
+  pattern->options = 0;
+}
+
+pattern_id_t seq_allocate_pattern(sequencer_data_t *data)
+{
+  if (data->patterns.head == MAX_PATTERNS)
+  {
+    return INVALID_PATTERN;
+  }
+  pattern_id_t m = data->patterns.available[data->patterns.head];
+  data->patterns.head++;
+  pattern_init(&PATTERN(data, m));
+  return m;
+}
+
+void step_init(step_t *step)
+{
+  step->cvA = 0;
+  step->cvB = 0;
+  step->duration = 0;
+  step->gate = 0;
+  step->prev = INVALID_STEP;
+  step->next = INVALID_STEP;
+}
+
+step_id_t seq_allocate_step(sequencer_data_t *data)
+{
+  if (data->steps.head == MAX_STEPS)
+  {
+    return INVALID_STEP;
+  }
+  step_id_t s = data->steps.available[data->steps.head];
+  data->steps.head++;
+  step_init(&STEP(data, s));
+  return s;
+}
+
 void seq_load_data(sequencer_data_t* data, read_func_t read) {
 
   snapshot_data_t snap_data;
@@ -161,9 +207,15 @@ void seq_load_data(sequencer_data_t* data, read_func_t read) {
     for(uint8_t pat=0;pat<data->tracks[i].nm;++pat) {
         snapshot_pattern_t snap_pat;
         read(sizeof(snapshot_pattern_t), &snap_pat);
+        pattern_id_t pat_id = seq_allocate_pattern(data);
         for(uint8_t step=0;step<snap_pat.ns;++step) {
             snapshot_step_t snap_step;
             read(sizeof(snapshot_step_t), &snap_step);
+            step_id_t step_id = seq_allocate_step(data);
+            step_t* step = &STEP(data, step_id);
+            step->cvA = snap_step.cvA;
+            step->cvB = snap_step.cvB;
+            
         }
     }
   }
