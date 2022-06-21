@@ -86,6 +86,66 @@ typedef struct
   // uint16_t reserved;
 } sequencer_data_t;
 
+typedef int (*read_func_t)(size_t bytes, void* dest);
+typedef int (*write_func_t)(size_t bytes, void* src);
+
+typedef struct
+{
+  uint8_t cvA;
+  uint8_t cvB;
+  uint8_t duration;
+  uint8_t gate;
+} snapshot_step_t;
+
+typedef struct
+{
+  uint8_t ns; // num of steps
+  uint8_t options;
+} snapshot_pattern_t;
+
+typedef struct
+{
+  uint32_t magic;
+  track_t tracks[NUM_TRACKS];
+} snapshot_data_t;
+
+
+void seq_save_data(sequencer_data_t* data, write_func_t write_func) {
+  
+  snapshot_data_t snap_data;
+  snap_data.magic = data->magic;
+  for(int i=0;i<NUM_TRACKS;++i) {
+    snap_data.tracks[i] = data->tracks[i];
+  }
+  write_func(sizeof(snapshot_data_t), &snap_data);
+
+  // Write out patterns.
+  for(int i=0;i<NUM_TRACKS;++i) {
+    for(pattern_id_t pat_id = data->tracks[i].first; pat_id; pat_id = data->patterns.pool[pat_id].next) {
+      pattern_t pat = data->patterns.pool[pat_id];
+      snapshot_pattern_t snap_pat;
+      snap_pat.ns = pat.ns;
+      snap_pat.options = pat.options;
+      write_func(sizeof(snapshot_pattern_t), &snap_pat);
+
+      // Write out steps.
+      for(step_id_t step_id = pat.first; step_id; step_id = data->steps.pool[step_id].next) {
+        step_t step = data->steps.pool[step_id];
+        snapshot_step_t snap_step;
+        snap_step.cvA = step.cvA;
+        snap_step.cvB = step.cvB;
+        snap_step.duration = step.duration;
+        snap_step.gate = step.gate;
+        write_func(sizeof(snapshot_step_t), &snap_step);
+      }
+    }
+  }
+
+  // Indicate that we're done writing so data is flushed.
+  write_func(0, NULL);
+
+}
+
 int main() {
     printf("running tests\n");
 }
