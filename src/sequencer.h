@@ -24,8 +24,8 @@
 #define BIT_ASSIGN(value, dst, mask) ((value) ? (dst |= mask) : (dst &= ~(mask)))
 #define BIT_TEST(opt, mask) (((opt) & (mask)) != 0)
 
-#define MAX_STEPS 2000
-#define MAX_PATTERNS 400
+#define MAX_STEPS 256
+#define MAX_PATTERNS 64
 #define NUM_TRACKS 4
 
 // to calculate ref_table section address: hex(0x2000+176*512-32-16*2*100)
@@ -33,10 +33,10 @@
 #define REFTABLE_SIZE (sizeof(uint16_t) * NUM_VOLTAGES_PER_TABLE)
 #define REFTABLE_BASE_ADDRESS (PROGRAM_START_ADDRESS + MAX_PROGRAM_SIZE - 32 - NUM_REF_TABLES * REFTABLE_SIZE)
 
-// 16 snapshots + blank snapshot
-#define NUM_SNAPSHOTS 17
+// 64 snapshots + blank snapshot
+#define NUM_SNAPSHOTS 65
 #define SNAPSHOT_BASE_ADDRESS (PROGRAM_START_ADDRESS + MAX_PROGRAM_SIZE)
-#define SNAPSHOT_SIZE (52 * AVR32_FLASH_PAGE_SIZE)
+#define SNAPSHOT_SIZE (10 * AVR32_FLASH_PAGE_SIZE)
 #define BLANK_SNAPSHOT 0
 
 #define INVALID_PATTERN 0xFFFF
@@ -190,8 +190,8 @@ typedef struct
 STATIC_ASSERT(sizeof(sequencer_data_t) == 4 + sizeof(transform_t) + NUM_TRACKS * sizeof(track_t) + sizeof(pattern_pool_t) + sizeof(step_pool_t), sequencer_data_t_is_wrong_size);
 STATIC_ASSERT(sizeof(sequencer_data_t) < SNAPSHOT_SIZE, sequencer_data_bigger_than_snapshot);
 STATIC_ASSERT(SNAPSHOT_SIZE * NUM_SNAPSHOTS < AVR32_FLASH_SIZE, snapshots_bigger_than_flash);
-STATIC_ASSERT(SNAPSHOT_SIZE * NUM_SNAPSHOTS == 452608, snapshots_is_wrong_size);
-STATIC_ASSERT(sizeof(sequencer_data_t) == 26572, sequencer_data_is_wrong_size);
+STATIC_ASSERT(SNAPSHOT_SIZE * NUM_SNAPSHOTS == 332800, snapshots_is_wrong_size);
+STATIC_ASSERT(sizeof(sequencer_data_t) == 5100, sequencer_data_is_wrong_size);
 
 #define STEP(data, id) (data->steps.pool[id])
 #define PATTERN(data, id) (data->patterns.pool[id])
