@@ -112,7 +112,7 @@ typedef struct
 #define GET_STEP_GATE(x) (GATE_MASK & (x))
 #define SET_STEP_GATE(x, value) ((x) = (RATCHET_MASK & (x)) | (value))
 
-STATIC_ASSERT(sizeof(step_t) == 8, step_t_is_wrong_size);
+_Static_assert(sizeof(step_t) == 8, "step_t is wrong size");
 
 typedef struct
 {
