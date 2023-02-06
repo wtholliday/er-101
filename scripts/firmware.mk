@@ -41,6 +41,7 @@ objects := $(addprefix $(out_dir)/,$(c_sources:%.c=%.o) $(cpp_sources:%.cpp=%.o)
 
 CFLAGS += -DFIRMWARE_VERSION=\"$(FIRMWARE_VERSION)\"
 CFLAGS += -DBUILD_PROFILE=\"$(PROFILE)\"
+CFLAGS += -std=c11
 LFLAGS = $(LFLAGS.$(ARCH))
 
 all: $(build_dir)/$(program_name).hex
