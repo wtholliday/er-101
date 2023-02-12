@@ -1005,7 +1005,7 @@ void ui_pause_button_push(void)
 
 void ui_reset_button_push(void)
 {
-  
+  blink_single_message(SEGDISP_LEFT_E, 0);
 }
 
 void ui_reset_button_release(void)
