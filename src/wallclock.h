@@ -34,12 +34,14 @@ __always_inline static void walltimer_schedule(wallclock_t end_time, walltimer_t
   timer->running = true;
 }
 
+/// @brief start the walltimer which will end after delay cycles have elapsed.
 __always_inline static void walltimer_start(unsigned long delay, walltimer_t *timer)
 {
   timer->end_time = wallclock() + (wallclock_t)delay;
   timer->running = true;
 }
 
+/// @brief Has the walltimer finished.
 __always_inline static bool walltimer_elapsed(walltimer_t *timer)
 {
   if (timer->running && wallclock() > timer->end_time)
