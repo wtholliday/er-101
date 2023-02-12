@@ -1005,6 +1005,11 @@ void ui_pause_button_push(void)
 
 void ui_reset_button_push(void)
 {
+  
+}
+
+void ui_reset_button_release(void)
+{
   if (seq.confirm_mode != CONFIRM_NOTHING)
   {
     end_confirm();
@@ -1028,11 +1033,6 @@ void ui_reset_button_push(void)
     seq.trigger_track = seq.focus_track;
     break;
   }
-}
-
-void ui_reset_button_release(void)
-{
-  
 }
 
 void flash_voltage(bool toggle)
