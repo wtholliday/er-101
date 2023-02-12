@@ -462,6 +462,7 @@ void transform_decrement_gate(transform_t *t);
 
 ////////////////////////////
 
+/// @brief Indicates an illegal user operation by flashing TILT on the display
 void tilt_trigger(void);
 void blink_single_message(uint16_t left, uint16_t right);
 void blink_double_message(uint16_t left, uint16_t right, uint16_t left2, uint16_t right2);
