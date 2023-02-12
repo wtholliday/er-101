@@ -309,6 +309,10 @@ __attribute__((__interrupt__)) static void gpio_handler10(void)
       }
       ui_q_debounce(ui_reset_button_push, EVENT_TIMESTAMP_RESET);
     }
+    else
+    {
+      ui_q_debounce(ui_reset_button_release, EVENT_TIMESTAMP_RESET_RELEASE);
+    }
   }
 
   if (gpio_get_pin_interrupt_flag(PIN_MATH_BUTTON))

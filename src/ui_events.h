@@ -27,7 +27,8 @@
 #define EVENT_TIMESTAMP_VOLTAGE_RELEASE 15
 #define EVENT_TIMESTAMP_TRACK 16
 #define EVENT_TIMESTAMP_TRACK_RELEASE 17
-#define NUM_EVENT_TIMESTAMPS 18
+#define EVENT_TIMESTAMP_RESET_RELEASE 18
+#define NUM_EVENT_TIMESTAMPS 19
 
 // typedef uint16_t ui_event_t;
 typedef void (*ui_event_t)(void);

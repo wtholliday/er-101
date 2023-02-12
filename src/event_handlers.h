@@ -59,6 +59,7 @@ void ui_lstart_button_push(void);
 void ui_lend_button_push(void);
 void ui_pause_button_push(void);
 void ui_reset_button_push(void);
+void ui_reset_button_release(void);
 void ui_insert_button_push(void);
 void ui_insert_button_release(void);
 void ui_voltage_button_push(void);

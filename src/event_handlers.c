@@ -1030,6 +1030,11 @@ void ui_reset_button_push(void)
   }
 }
 
+void ui_reset_button_release(void)
+{
+  
+}
+
 void flash_voltage(bool toggle)
 {
   if (toggle)
